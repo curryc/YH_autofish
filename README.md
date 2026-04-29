@@ -1,3 +1,12 @@
+<div align="center">
+  <h1 align="center">
+    <a href="https://www.bettergi.com/"><img src="https://github.com/curryc/YH_autofish/blob/chen/assets/bohe.jpg"
+     width="190"></a>
+    <br/>
+    <a href="https://www.bettergi.com/">鱼来</a>
+  </h1>
+</div>
+
 # YH_AutoFish 异环自动钓鱼脚本
 
 一个基于 OpenCV 图像识别的《异环》自动钓鱼脚本工具。不修改游戏文件、不抓包、不利用任何漏洞，完全通过模拟正常玩家的键鼠操作实现自动钓鱼。
@@ -13,8 +22,9 @@
 - **依赖库**: 主要依赖 OpenCV 等，在首次运行前请先安装依赖
 
 ### 使用方法
-1. 启动游戏，并将游戏分辨率设置为 **1280x720**（窗口化/无边框窗口均可，但尽量保持固定位置）。
-2. 以**管理员身份**运行exe。
+1. 启动游戏，并将游戏分辨率设置为 **1280x720**（窗口化）。
+2. 按照需求更改config.py，比如：等待时间，是否自动关机等
+2. 运行exe，程序会请求以**管理员身份**运行，同意后开始钓鱼
 
 
 ### 免责声明
