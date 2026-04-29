@@ -1,0 +1,118 @@
+########################
+# 通用 Python 忽略规则 #
+########################
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+develop-eggs/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# 单元测试 / 覆盖率
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+cover/
+
+# 翻译
+*.mo
+*.pot
+
+# Django
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+
+# Flask
+instance/
+.webassets-cache
+
+# Scrapy
+.scrapy
+
+# 文档
+docs/_build/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# IPython
+profile_default/
+ipython_config.py
+
+# 虚拟环境
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# 项目工具
+.pybuilder/
+target/
+
+# 类型检查缓存
+.mypy_cache/
+.dmypy.json
+dmypy.json
+.pyre/
+.pytype/
+
+# IDE / 编辑器
+.idea/
+.vscode/
+
+# Windows 临时文件
+Thumbs.db
+desktop.ini
+
+########################
+# 本项目专用忽略规则   #
+########################
+
+# 构建产物
+build/
+dist/
+
+# PyInstaller 打包文件
+*.spec
+*.manifest
+
+# 运行日志
+logs/
+*.log
+
+# 其他本地输出
+screenshots/
+
