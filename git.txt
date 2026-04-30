@@ -1,6 +1,0 @@
-git init .
-git add README.md .gitignore main.py config.py requirements.txt tools modules assets
-git commit -m "first commit"
-git branch -M chen
-git remote add origin https://github.com/curryc/YH_autofish.git
-git push -u origin chen
