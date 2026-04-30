@@ -57,7 +57,7 @@ from modules.controller import Controller
 from modules.fish_bar import FishBar
 from modules.keyboard import Keyboard
 from modules.logger import logger, log_kv
-from modules.template import HOOK, TAKE_BAIT, Template
+from modules.template import BLANK, HOOK, TAKE_BAIT, Template
 
 RECOVERABLE_ERRORS = (TimeoutError,)
 TRANSIENT_ERRORS = (RuntimeError,)
@@ -81,13 +81,11 @@ def wait_until_appear(controller, template, timeout, should_stop):
 
 
 def click_blank_after_fishing(controller, should_stop):
-    delay_s = max(0.0, float(CONFIG.timeouts.click_blank_delay_s))
-    logger.debug(f"Fishing ended, waiting {delay_s:.2f}s before blank click.")
-    end_time = time.time() + delay_s
-    while time.time() < end_time:
-        if should_stop():
-            raise TimeoutError("Shutdown requested.")
-        time.sleep(0.01)
+    timeout_s = max(0.1, float(CONFIG.timeouts.blank_wait_s))
+    logger.debug(f"Fishing ended, waiting for BLANK with timeout {timeout_s:.1f}s.")
+    wait_until_appear(controller, BLANK, timeout_s, should_stop)
+    controller.ensure_foreground()
+    logger.info("starting next fishing round...")
     controller.mouse_click()
 
 
@@ -204,15 +202,17 @@ def run():
                 stage_times = {}
                 try:
                     stage_times["wait_hook_s"] = wait_until_appear(
-                        controller, HOOK, None, should_stop
+                        controller, HOOK, CONFIG.timeouts.hook_wait_s, should_stop
                     )
-                    logger.info("Spinning rod...")
+                    controller.ensure_foreground()
+                    logger.info("Spinning rod")
                     keyboard.click("f")
 
                     stage_times["wait_take_bait_s"] = wait_until_appear(
                         controller, TAKE_BAIT, CONFIG.timeouts.take_bait_wait_s, should_stop
                     )
-                    logger.info("Taking bait...")
+                    controller.ensure_foreground()
+                    logger.info("Taking bait")
                     keyboard.click("f")
 
                     fish_stats = fish_bar.start(should_stop=should_stop)

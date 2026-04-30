@@ -34,6 +34,9 @@ class FishBar:
         self.controller = controller
         self.keyboard = Keyboard()
         self.current_key = None
+        self.in_center_zone = False
+        self.pulse_until = 0.0
+        self.pulse_ready_at = 0.0
     
     def _get_green_bar(self, screenshot):
         x, y, w, h = self.RECT
@@ -84,6 +87,50 @@ class FishBar:
             self.keyboard.release(self.current_key)
             self.current_key = None
 
+    def _control_track_center(self, left, right, cursor):
+        target = (left + right) / 2.0
+        err = cursor - target
+        abs_err = abs(err)
+
+        enter_deadzone = max(0, int(CONFIG.fish_bar.center_deadzone_enter_px))
+        exit_deadzone = max(enter_deadzone, int(CONFIG.fish_bar.center_deadzone_exit_px))
+        medium_err = max(exit_deadzone + 1, int(CONFIG.fish_bar.medium_error_px))
+        large_err = max(medium_err + 1, int(CONFIG.fish_bar.large_error_px))
+
+        # 滞回：进入中心区后，误差需超过更大的退出阈值才恢复控制。
+        if self.in_center_zone:
+            if abs_err <= exit_deadzone:
+                self._release_all()
+                return
+            self.in_center_zone = False
+        elif abs_err <= enter_deadzone:
+            self.in_center_zone = True
+            self._release_all()
+            return
+
+        target_key = "d" if err < 0 else "a"
+
+        if abs_err >= large_err:
+            self._press(target_key)
+            self.pulse_until = 0.0
+            self.pulse_ready_at = 0.0
+            return
+
+        now = time.time()
+        if abs_err >= medium_err:
+            if self.current_key == target_key:
+                if now >= self.pulse_until:
+                    self._release_all()
+                    self.pulse_ready_at = now + max(0.0, float(CONFIG.fish_bar.pulse_release_s))
+                return
+
+            if now >= self.pulse_ready_at:
+                self._press(target_key)
+                self.pulse_until = now + max(0.0, float(CONFIG.fish_bar.pulse_press_s))
+            return
+
+        self._release_all()
+
     def wait_until_ui_appear(self, timeout=None, should_stop=None):
         if timeout is None:
             timeout = CONFIG.timeouts.fish_ui_wait_s
@@ -100,7 +147,7 @@ class FishBar:
         raise TimeoutError("Fish bar UI loop interrupted.")
 
     def start(self, should_stop=None):
-        logger.info("Starting fishing...")
+        logger.info("Fishing...")
         stats = FishBarStats()
         stats.ui_wait_seconds = self.wait_until_ui_appear(should_stop=should_stop)
         
@@ -129,13 +176,7 @@ class FishBar:
             if cursor is None:
                 stats.cursor_missing += 1
                 continue
-
-            if cursor < left:
-                self._press('d')
-            elif cursor > right:
-                self._press('a')
-            else:
-                self._release_all()
+            self._control_track_center(left, right, cursor)
 
         self._release_all()
         return stats

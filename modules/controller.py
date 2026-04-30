@@ -29,7 +29,29 @@ class Controller:
         self.rect = None
         self.closed = False
         self._resolution_warning_shown = False
+        self._focus_warning_last_ts = 0.0
         self._ensure_hwnd()
+
+    def _try_activate_window(self):
+        if win32gui.GetForegroundWindow() == self.hwnd:
+            return True
+        try:
+            win32gui.ShowWindow(self.hwnd, win32con.SW_RESTORE)
+            win32gui.SetForegroundWindow(self.hwnd)
+            time.sleep(CONFIG.controller.foreground_wait_s)
+        except Exception as e:
+            now = time.time()
+            # Throttle noisy foreground errors to keep logs readable.
+            if now - self._focus_warning_last_ts >= 1.0:
+                logger.warning(f"Failed to focus window, continue with current foreground: {e}")
+                self._focus_warning_last_ts = now
+            return False
+        return win32gui.GetForegroundWindow() == self.hwnd
+
+    def ensure_foreground(self):
+        if not win32gui.IsWindow(self.hwnd):
+            self._ensure_hwnd()
+        return self._try_activate_window()
 
     def _ensure_hwnd(self):
         attempts = 0
@@ -55,10 +77,7 @@ class Controller:
             if not win32gui.IsWindow(self.hwnd):
                 self._ensure_hwnd()
 
-            if win32gui.GetForegroundWindow() != self.hwnd:
-                win32gui.ShowWindow(self.hwnd, win32con.SW_RESTORE)
-                win32gui.SetForegroundWindow(self.hwnd)
-                time.sleep(CONFIG.controller.foreground_wait_s)
+            self._try_activate_window()
 
             # 只记录窗口矩形，不强制移动窗口。此前在“超出 camera 范围”时会把窗口挪到屏幕正中，
             # 导致用户无法自由摆放；且部分在屏外时与下方裁剪叠加，会把宽度裁成非 1280 触发误报。
@@ -138,10 +157,7 @@ class Controller:
         if not win32gui.IsWindow(self.hwnd):
             self._ensure_hwnd()
 
-        if win32gui.GetForegroundWindow() != self.hwnd:
-            win32gui.ShowWindow(self.hwnd, win32con.SW_RESTORE)
-            win32gui.SetForegroundWindow(self.hwnd)
-            time.sleep(CONFIG.controller.foreground_wait_s)
+        self._try_activate_window()
 
         x, y = win32gui.ClientToScreen(self.hwnd, pos)
         logger.debug(f"Mouse click at client pos {pos} (screen pos {x}, {y}).")

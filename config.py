@@ -47,17 +47,16 @@ class ControllerConfig:
 @dataclass(frozen=True)
 class TimeoutsConfig:
     # 等待 HOOK 出现超时（秒）。
-    # 典型值: 2~5；调大可减少误超时，调小可更快重试。
-    hook_wait_s: float = 3.0
+    # 典型值: 8~20；用于避免“上一轮界面没退出导致无限卡死”。
+    hook_wait_s: float = 12.0
 
     # 等待 TAKE_BAIT 出现超时（秒）。
     # 典型值: 8~15
     take_bait_wait_s: float = 10.0
 
-    # 溜鱼结束后，点击空白前的固定等待（秒）。
-    # 典型值: 0.3~0.8
-    # 调大效果: 更稳但每轮稍慢；调小效果: 更快但可能点早了。
-    click_blank_delay_s: float = 0.5
+    # 溜鱼结束后等待 BLANK 模板出现的超时（秒）。
+    # 典型值: 3~10；超时会触发重试逻辑，避免无限卡住。
+    blank_wait_s: float = 6.0
 
     # 鱼条 UI 出现等待超时（秒）。
     # 典型值: 5~12
@@ -74,7 +73,7 @@ class TemplateConfig:
     # 模板匹配阈值（0~1）。
     # 典型值: 0.80~0.90
     # 调高效果: 更严格、误识别少；调低效果: 更容易匹配、但误识别风险升高。
-    similarity: float = 0.85
+    similarity: float = 0.5
 
 
 @dataclass(frozen=True)
@@ -112,6 +111,30 @@ class FishBarConfig:
     # 鱼条控制循环间隔（秒）。
     # 典型值: 0.0~0.01（通常由 CPU profile 自动覆盖）。
     control_loop_interval: float = 0.0
+
+    # 中心跟踪死区（进入阈值，像素）。
+    # 典型值: 3~6；越大越稳但更“钝”。
+    center_deadzone_enter_px: int = 4
+
+    # 中心跟踪死区（退出阈值，像素，建议大于 enter 形成滞回）。
+    # 典型值: 5~9；可抑制 1~2 像素抖动导致的反向按键。
+    center_deadzone_exit_px: int = 7
+
+    # 误差达到该阈值时采用“持续按键”。
+    # 典型值: 18~30
+    large_error_px: int = 22
+
+    # 误差达到该阈值时采用“短脉冲轻按”。
+    # 典型值: 8~16（应小于 large_error_px）。
+    medium_error_px: int = 10
+
+    # 脉冲按下持续时间（秒）。
+    # 典型值: 0.02~0.06
+    pulse_press_s: float = 0.035
+
+    # 脉冲释放冷却时间（秒）。
+    # 典型值: 0.03~0.08
+    pulse_release_s: float = 0.05
 
 
 @dataclass(frozen=True)
@@ -184,7 +207,7 @@ class AutoStopConfig:
 
     # 目标钓鱼次数（达到后触发动作）。
     # 典型值: 30 / 50 / 99
-    target_count: int = 200
+    target_count: int = 500
 
     # 达标后是否“杀游戏并结束当前进程”。
     # 典型值: True
@@ -192,12 +215,12 @@ class AutoStopConfig:
 
     # 达标后是否执行关机（独立开关，谨慎）。
     # 典型值: False / True
-    shutdown_on_target: bool = False
+    shutdown_on_target: bool = True
 
     # 关机延迟（秒）。
     # 典型值: 0 / 30 / 60
     # 调整效果: >0 可给你留出取消关机的时间。
-    shutdown_delay_seconds: int = 10
+    shutdown_delay_seconds: int = 30
 
 
 @dataclass(frozen=True)

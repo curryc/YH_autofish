@@ -29,6 +29,7 @@ share/python-wheels/
 MANIFEST
 
 # 单元测试 / 覆盖率
+script/
 htmlcov/
 .tox/
 .nox/

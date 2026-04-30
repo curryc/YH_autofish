@@ -63,5 +63,6 @@ class Template:
 
 
 
-TAKE_BAIT = Template(_resolve_resource_path("assets/templates/TAKE_BAIT.png"))
+TAKE_BAIT = Template(_resolve_resource_path("assets/templates/BAIT.png"))
 HOOK = Template(_resolve_resource_path("assets/templates/HOOK.png"))
+BLANK = Template(_resolve_resource_path("assets/templates/BLANK.png"))
