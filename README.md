@@ -1,9 +1,7 @@
 <div align="center">
   <h1 align="center">
-    <a href="https://github.com/curryc/YH_autofish"><img src="https://github.com/curryc/YH_autofish/blob/chen/assets/bohe.jpg"
-     width="190"></a>
     <br/>
-    <a href="https://github.com/curryc/YH_autofish">鱼来</a>
+    <a href="https://github.com/curryc/YH_autofish">鱼来！</a>
   </h1>
 </div>
 
